@@ -10,9 +10,7 @@ import re
 
 __author__ = "Issy"
 
-BaseCog == getattr(commands, "Cog", object)
-
-class IntelArk(BaseCog):
+class IntelArk(commands.Cog):
     """Search for Intel CPUs"""
 
     def __init__(self, client):
