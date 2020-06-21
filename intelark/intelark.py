@@ -7,7 +7,6 @@ import bs4
 from bs4 import BeautifulSoup as soup
 import urllib.parse
 import re
-import 
 
 __author__ = "Issy"
 
