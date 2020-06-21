@@ -1,5 +1,5 @@
 """Package for IntelArk cog"""
-from .intel-ark import IntelArk
+from .intelark import IntelArk
 
 def setup(bot):
     bot.add_cog(IntelArk(bot))
