@@ -17,9 +17,9 @@ class IntelArk(commands.Cog):
         self.client = client
         self.intelBlue = 0x0071C5
         self.specialQueries = {
-        '@everyone': "Hah. Nice try. Being very funny. Cheeky cunt.",
-        '@here': "Hilarious, I'm reporting you to the mods.",
-        ':(){ :|: & };: -': "This is a python bot, not a bash bot you nimwit."
+        "@everyone": "Hah. Nice try. Being very funny. Cheeky cunt.",
+        "@here": "Hilarious, I'm reporting you to the mods.",
+        ":(){ :|: & };: -": "This is a python bot, not a bash bot you nimwit."
         }
         self.headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36'}
 
@@ -29,11 +29,20 @@ class IntelArk(commands.Cog):
         print('Intel Ark cog online')
 
     @commands.command()
+    async def test(self, ctx, *args):
+        await ctx.send(args)
+        print(args)
+
+    @commands.command()
     async def ark(self, ctx, *searchTerm):
         """Search for Intel CPUs"""
-        if " ".join(searchTerm) in self.specialQueries:
-            await ctx.send(embed=discord.Embed(colour=self.intelBlue,description=self.specialQueries[" ".join(searchTerm)]))
-            return
+        for word in searchTerm:
+            if word in self.specialQueries:
+                await ctx.send(embed=discord.Embed(colour=self.intelBlue,description=self.specialQueries[word]))
+                return
+            if re.compile('<@![0-9]{18}>').match(word):
+                await ctx.send(embed=discord.Embed(colour=self.intelBlue,description=f"<@{ctx.author.id}> pong!"))
+                return
 
         indexModifier = re.compile('r=[0-9]')
         if indexModifier.match(searchTerm[-1]):
@@ -65,15 +74,22 @@ class IntelArk(commands.Cog):
             return
 
         if (page_soup.find("h2",text="No products matching your request were found.")): # if no products found
-            embed = discord.Embed(colour=self.intelBlue,description=f"No results found for `{searchTerm}`")
+            embed = discord.Embed(colour=self.intelBlue,description=f"No results found for `{searchTerm.replace('`','``')}`")
             await ctx.send(embed=embed)
             return
 
         # build list of URLs
         results = page_soup.findAll("div",{"class":"search-result"})
         urls = []
+        ignore = ['generation','ethernet','wireless','products formerly','heat sink']
         for item in results:
-            if 'generation' in item.find("h4",{"class":"result-title"}).find("a").contents[0].strip().lower():
+            trigger = 0
+            itemTitle = item.find("h4",{"class":"result-title"}).find("a").contents[0].strip().lower()
+            for word in ignore:
+                if word in itemTitle:
+                    trigger = 1
+                    break
+            if trigger == 1:
                 continue
             else:
                 url = item.find("h4",{"class":"result-title"}).find("a").get('href')
