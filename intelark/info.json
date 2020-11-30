@@ -1,8 +1,14 @@
 {
-    "author" : ["Issy"],
-    "install_msg" : "Use `[p]ark [searchTerm]` to see info on specific Intel CPUs.",
-    "name" : "IntelArk",
-    "short" : "Searches the Intel Ark website",
-    "description" : "See descriptive info on Intel CPUs such as core-count, whether they have AES-NI technology or even what sockets they support",
-    "tags" : ["fun", "general", "tool"]
+    "author": [
+        "Issy"
+    ],
+    "install_msg": "Use `[p]ark [searchTerm]` to see info on specific Intel CPUs.",
+    "name": "IntelArk",
+    "short": "Searches the Intel Ark website",
+    "description": "See descriptive info on Intel CPUs such as core-count and clock speed",
+    "tags": [
+        "fun",
+        "general",
+        "tool"
+    ]
 }
