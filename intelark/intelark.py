@@ -2,9 +2,7 @@ import discord
 from redbot.core import commands
 from redbot.core.utils.menus import menu, prev_page, close_menu, next_page
 import aiohttp
-import asyncio
 from bs4 import BeautifulSoup as soup
-import urllib.parse
 import re
 
 CUSTOM_CONTROLS = {"⬅️": prev_page, "⏹️": close_menu, "➡️": next_page}
@@ -34,7 +32,7 @@ class IntelArk(commands.Cog):
 # Commands
 
     @commands.command(name='ark')
-    async def _ark(self, ctx: discord.Context, *, search_term: str):
+    async def _ark(self, ctx, *, search_term: str):
         """Search for Intel CPUs"""
         # Check for special queries
         response = self.get_response(ctx, search_term)
@@ -54,7 +52,7 @@ class IntelArk(commands.Cog):
 
 # Helper functions
 
-    def get_response(self, ctx: discord.Context, search_term: str) -> discord.Embed:
+    def get_response(self, ctx, search_term: str) -> discord.Embed:
         """Get quirky responses for special triggers"""
         special_queries = {
             "@everyone": "Hah. Nice try. Being very funny. Cheeky cunt.",
