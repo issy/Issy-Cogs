@@ -35,19 +35,20 @@ class IntelArk(commands.Cog):
     async def _ark(self, ctx, *, search_term: str):
         """Search for Intel CPUs"""
         # Check for special queries
-        response = self.get_response(ctx, search_term)
-        if response:
-            await ctx.send(embed=response)
-            return
+        async with ctx.channel.typing():
+            response = self.get_response(ctx, search_term)
+            if response:
+                await ctx.send(embed=response)
+                return
 
-        results: tuple[discord.Embed] = await self.get_search_results(search_term)
-        if not results:
-            embed = discord.Embed(description=f"No results found for `{search_term.replace('`','``')}`", colour=self.intel_blue)
-            await ctx.send(embed=embed)
-            return
-        if len(results) == 1:
-            await ctx.send(embed=results[0])
-            return
+            results: tuple[discord.Embed] = await self.get_search_results(search_term)
+            if not results:
+                embed = discord.Embed(description=f"No results found for `{search_term.replace('`','``')}`", colour=self.intel_blue)
+                await ctx.send(embed=embed)
+                return
+            if len(results) == 1:
+                await ctx.send(embed=results[0])
+                return
         await menu(ctx, pages=results, controls=CUSTOM_CONTROLS, message=None, page=0, timeout=120)
 
 # Helper functions
