@@ -1,0 +1,14 @@
+{
+    "author": [
+        "Issy"
+    ],
+    "install_msg": "Use `[p]avatar [member]` to see A large version of that member's avatar",
+    "name": "Avatar",
+    "short": "Shows member's avatars bigly",
+    "description": "See descriptive info on Intel CPUs such as core-count and clock speed",
+    "tags": [
+        "fun",
+        "general",
+        "tool"
+    ]
+}
