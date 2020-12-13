@@ -4,6 +4,7 @@ from redbot.core.utils.menus import menu, prev_page, close_menu, next_page
 import aiohttp
 from bs4 import BeautifulSoup as soup
 import re
+from typing import Tuple, List
 
 CUSTOM_CONTROLS = {"⬅️": prev_page, "⏹️": close_menu, "➡️": next_page}
 
@@ -13,6 +14,7 @@ __author__ = "Issy"
 
 desiredSpecs = ('ProcessorNumber','CoreCount','ThreadCount','HyperThreading','ClockSpeed','SocketsSupported','MaxTDP','AESTech','MaxMem')
 returnedSpecs = ('Url', 'ProcessorNumber', 'CoreCount', 'ThreadCount', 'HyperThreading', 'ClockSpeed', 'SocketsSupported', 'MaxTDP', 'AESTech', 'MaxMem', 'VTD', 'ClockSpeedMax')
+ignore_words = ('generation','ethernet','wireless','products formerly','heat sink', 'compute module', 'board')
 
 async def make_soup(url):
     async with aiohttp.ClientSession() as session:
@@ -41,7 +43,7 @@ class IntelArk(commands.Cog):
                 await ctx.send(embed=response)
                 return
 
-            results: tuple[discord.Embed] = await self.get_search_results(search_term)
+            results: Tuple[discord.Embed] = await self.get_search_results(search_term)
             if not results:
                 embed = discord.Embed(description=f"No results found for `{search_term.replace('`','``')}`", colour=self.intel_blue)
                 await ctx.send(embed=embed)
@@ -67,7 +69,7 @@ class IntelArk(commands.Cog):
                 return discord.Embed(colour = self.intel_blue, description = f"<@{ctx.author.id}> pong!")
         return False
 
-    async def get_urls(self, page_soup: soup) -> tuple:
+    def get_urls(self, page_soup: soup) -> Tuple[str]:
         if (page_soup.find("input",{"id":"FormRedirectUrl"})): # if only one result
             url = page_soup.find("input",{"id":"FormRedirectUrl"}).get('value')
             return [f"https://ark.intel.com{url}"]
@@ -76,12 +78,11 @@ class IntelArk(commands.Cog):
         # build list of URLs
         results = page_soup.findAll("div",{"class":"search-result"})
         urls = []
-        ignore = ['generation','ethernet','wireless','products formerly','heat sink']
         for item in results:
             trigger = False
             itemTitle = item.find("h4",{"class":"result-title"}).find("a").contents[0].strip().lower()
             # If certain keywords are in the product body, skip this product
-            for word in ignore:
+            for word in ignore_words:
                 if word in itemTitle:
                     trigger = True
             if not trigger:
@@ -127,18 +128,18 @@ class IntelArk(commands.Cog):
             embed.set_footer(text=f"{index['current']+1} of {index['max']}")
         return embed
 
-    async def get_search_results(self, search_term: str) -> tuple:
+    async def get_search_results(self, search_term: str) -> Tuple[discord.Embed]:
         url: str = f"https://ark.intel.com/content/www/us/en/ark/search.html?_charset_=UTF-8&q={search_term}"
         search_page: soup = await make_soup(url)
-        urls: tuple[str] = await self.get_urls(search_page)
+        urls: Tuple[str] = self.get_urls(search_page)
         if not urls:
             return ()
-        pages: list[soup] = []
+        pages: List[soup] = []
 
         for url in urls:
             page: soup = await make_soup(url)
             pages.append(page)
 
-        all_cpu_data: list[dict] = [self.get_cpu_data(i) for i in pages]
+        all_cpu_data: List[dict] = [self.get_cpu_data(i) for i in pages]
         embeds = [self.make_ark_embed(all_cpu_data[i], {'min': '0', 'current': i, 'max': len(all_cpu_data)}) for i in range(len(all_cpu_data))]
         return tuple(embeds)
