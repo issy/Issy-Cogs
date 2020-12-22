@@ -10,5 +10,6 @@
         "fun",
         "general",
         "tool"
-    ]
+    ],
+    "requirements": ["bs4"]
 }
