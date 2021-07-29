@@ -3,4 +3,5 @@ from .intelark import IntelArk
 
 
 def setup(bot):
+    """Cog entrypoint"""
     bot.add_cog(IntelArk(bot))

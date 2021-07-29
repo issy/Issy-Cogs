@@ -1,5 +1,6 @@
+"""Intel ARK Cog"""
 import re
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import aiohttp
 import bs4
@@ -11,7 +12,10 @@ from redbot.core.utils.menus import close_menu, menu, next_page, prev_page
 CUSTOM_CONTROLS = {"⬅️": prev_page, "⏹️": close_menu, "➡️": next_page}
 
 headers = {
-    "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36"
+    "user-agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36"
+    )
 }
 
 __author__ = "Issy"
@@ -52,7 +56,8 @@ ignore_words = (
 )
 
 
-async def make_soup(url):
+async def make_soup(url: str) -> soup:
+    """Get and parse URL"""
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers, allow_redirects=True) as data:
             data_text = await data.text()
@@ -143,7 +148,7 @@ class IntelArk(commands.Cog):
         return tuple(urls)
 
     def check_product_title(self, product: bs4.element.Tag) -> bool:
-        item_title = item.find("h4", {"class": "result-title"}).find("a").contents[0].strip().lower()
+        item_title = product.find("h4", {"class": "result-title"}).find("a").contents[0].strip().lower()
         for word in ignore_words:
             if word in item_title:
                 return False
@@ -164,15 +169,15 @@ class IntelArk(commands.Cog):
                 specs[spec_item] = None
         return specs
 
-    def make_ark_embed(self, data: dict, index: dict = {}) -> discord.Embed:
+    def make_ark_embed(self, data: dict, index: Optional[dict] = None) -> discord.Embed:
         embed = discord.Embed(title="Ark Search Result", url=data["Url"], colour=self.intel_blue)
         embed.add_field(
             name="Product Name",
             value=f"[{data['ProcessorNumber']}]({data['Url']})",
             inline=True,
         )
-        if data["ClockSpeed"] != None:
-            if data["ClockSpeedMax"] != None:
+        if data["ClockSpeed"] is not None:
+            if data["ClockSpeedMax"] is not None:
                 embed.add_field(
                     name="Clock Speed",
                     value=f"{data['ClockSpeed']} / {data['ClockSpeedMax']}",
@@ -182,17 +187,17 @@ class IntelArk(commands.Cog):
                 embed.add_field(name="Clock Speed", value=data["ClockSpeed"], inline=True)
         core_thread_value = (
             f"{data['CoreCount']} / {data['CoreCount']}"
-            if data["HyperThreading"] == "No" or data["HyperThreading"] == None
+            if data["HyperThreading"] == "No" or data["HyperThreading"] is None
             else f"{data['CoreCount']} / {data['ThreadCount']}"
         )
         embed.add_field(name="Cores/Threads", value=core_thread_value, inline=True)
-        if data["MaxTDP"] != None:
+        if data["MaxTDP"] is not None:
             embed.add_field(name="TDP", value=data["MaxTDP"], inline=True)
-        if data["VTD"] != None:
+        if data["VTD"] is not None:
             embed.add_field(name="VTD", value=data["VTD"], inline=True)
-        if data["AESTech"] != None:
+        if data["AESTech"] is not None:
             embed.add_field(name="AES Tech", value=data["AESTech"], inline=True)
-        if data["SocketsSupported"] != None:
+        if data["SocketsSupported"] is not None:
             embed.add_field(name="Sockets", value=data["SocketsSupported"], inline=True)
         if index:
             embed.set_footer(text=f"{index['current']+1} of {index['max']}")
