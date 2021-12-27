@@ -124,7 +124,7 @@ class IntelArk(commands.Cog):
     def get_urls(self, page_soup: soup) -> Tuple[str]:
         if page_soup.find("input", {"id": "FormRedirectUrl"}):  # if only one result
             url = page_soup.find("input", {"id": "FormRedirectUrl"}).get("value")
-            return f"https://ark.intel.com{url}"
+            return (f"https://ark.intel.com{url}",)
         if page_soup.find("h2", text="No products matching your request were found."):  # if no products found
             return ()
         # build list of URLs
